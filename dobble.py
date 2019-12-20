@@ -2,6 +2,9 @@
 Dobble game for children
 """
 
+import pygame
+import random
+
 cards=[
         [0, 1, 2, 3, 4, 25],
         [5, 6, 7, 8, 9, 25],
@@ -36,3 +39,41 @@ cards=[
         [25, 26, 27, 38, 29, 30]
         ]
 
+settings = {
+'screen_width': 1200,
+'screen_height': 600,
+'screen_bg_col': (255, 255, 255),
+'maxfps': 30,
+}
+
+
+def card_generator(cards, number=2):
+    """ Generates random cards for playing dobble
+
+    cards - set of cards to choose from
+    number - number of cards to choose (default=2)
+    """
+    return  random.sample(cards, number)
+
+def load_image(number):
+    """ Load and resize the surface image bound to a given
+    card number """
+    
+    
+
+def run_game():
+    # Initialize pygame, settings and screen object
+    pygame.init() 
+    screen = pygame.display.set_mode(
+            (settings['screen_width'], settings['screen_height'])) 
+    pygame.display.set_caption("Dobble") 
+    
+    dont_burn_my_cpu = pygame.time.Clock()
+    
+    while True:
+        screen.fill(settings['screen_bg_col'])
+        pygame.display.flip()
+        
+        dont_burn_my_cpu.tick(settings['maxfps'])
+
+run_game()
