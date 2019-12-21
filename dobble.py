@@ -124,17 +124,17 @@ def same_cards(card_hand, board):
     for i, element in enumerate(hand_1):
         if element in hand_2:
             if i <= 2:
-                first_img = (0, i)
+                first_img = [0, i]
             else:
-                first_img = (1, i-3)
+                first_img = [1, i-3]
             
             index = hand_2.index(element)
             if index <= 2:
-                second_img = (3, index)
+                second_img = [3, index]
             else:
-                second_img = (4, index-3)
+                second_img = [4, index-3]
 
-            return (first_img, second_img)
+            return [first_img, second_img]
 
 
 def img_rect(position):
@@ -201,7 +201,9 @@ def check_events(game_button, settings, card_hand, new_board, screen):
                 found_clicked_2 = found_2.collidepoint(mouse_x, mouse_y)
                 if found_clicked_1 or found_clicked_2:
                     print("HIT")
-                    card_hand = card_generator(cards)
+                    card_hand_temp = card_generator(cards)
+                    card_hand.clear()
+                    card_hand.extend(card_hand_temp)
                     board_temp = board(card_hand)
                     new_board.clear()
                     new_board.extend(board_temp)
