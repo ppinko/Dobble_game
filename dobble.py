@@ -49,33 +49,29 @@ settings = {
 }
 
 class Button():
-
     def __init__(self, screen, msg):
         """Initilize button attributes"""
-        #self.screen_width = settings['screen_width']
-        #self.screen_height = settings['screen_height']
         self.screen_rect = screen.get_rect()
         self.screen = screen
 
-        # Set the dimensions and properties of the button
         self.width, self.height = 100, 50
         self.button_color = (0, 255, 0)
         self.text_color = (255, 255, 255)
-        self.font = pygame.font.SysFont(None, 20) # None - default font, 48 - size of the font
+        self.font = pygame.font.SysFont(None, 32) 
 
-        # Build the button's rect object and center it
         self.rect = pygame.Rect(0, 0, self.width, self.height)
         self.rect.center = self.screen_rect.center
 
-        # The button message needs to be prepped only once
         self.prep_msg(msg)
-                
+  
+
     def prep_msg(self, msg):
         """Turn msg into a rendered image and center text on the button"""
         self.msg_image = self.font.render(msg, True, self.text_color, 
                 self.button_color) # True - antialiasing on
         self.msg_image_rect = self.msg_image.get_rect()
         self.msg_image_rect.center = self.rect.center
+
 
     def draw_button(self):
         # Draw blank button and then draw message
@@ -90,7 +86,13 @@ def card_generator(cards, number=2):
 
     return - list containing two cards
     """
-    return  random.sample(cards, number)
+    basic = random.sample(cards, number)
+    part_1 = basic[0]
+    part_2 = basic[1]
+    random.shuffle(part_1)
+    random.shuffle(part_2)
+    card_hand = [part_1, part_2]
+    return card_hand
 
 def board(card_hand):
     """ Generate matrix with images and their positions 
@@ -104,7 +106,6 @@ def board(card_hand):
     board.append([-1, -1, -1])
     board.append(card_hand[1][:3])
     board.append(card_hand[1][3:])
-
     return board
 
 
@@ -120,7 +121,6 @@ def same_cards(card_hand, board):
     """
     hand_1 = card_hand[0]
     hand_2 = card_hand[1]
-
     for i, element in enumerate(hand_1):
         if element in hand_2:
             if i <= 2:
@@ -133,24 +133,19 @@ def same_cards(card_hand, board):
                 second_img = [3, index]
             else:
                 second_img = [4, index-3]
-
             return [first_img, second_img]
 
 
 def img_rect(position):
-    """
-    """
-    # Build the button's rect object and center it
+    """Builds a rect where are the same cards"""
     same_rect = pygame.Rect(0, 0, 80, 80)
     same_rect.center = (50 + 100 * position[1], 50 + 100 * position[0])
-    print(same_rect.center)
     return same_rect
 
 
 def load_image(number):
     """ Load and resize the surface image bound to a given
     card number """
-
     image = pygame.image.load('images/img_{0}.png'.format(number))
     scaled_image = pygame.transform.scale(image, (80, 80))    
     return scaled_image
@@ -164,7 +159,6 @@ def blitme(screen, scaled_image, rect):
 def draw_board(screen, board):
     """ 
     Draw a board with images
-
     screen - surface to draw on
     board - matrix with picture numbers
     """
@@ -192,15 +186,12 @@ def check_events(game_button, settings, card_hand, new_board, screen):
             if settings['game_active'] == False:
                 check_game_button(game_button, mouse_x, mouse_y, settings)
             else:
-                print('Active game')
                 t1 = same_cards(card_hand, new_board)
-                print(t1)
                 found_1 = img_rect(t1[0])
                 found_2 = img_rect(t1[1])
                 found_clicked_1 = found_1.collidepoint(mouse_x, mouse_y)
                 found_clicked_2 = found_2.collidepoint(mouse_x, mouse_y)
                 if found_clicked_1 or found_clicked_2:
-                    print("HIT")
                     card_hand_temp = card_generator(cards)
                     card_hand.clear()
                     card_hand.extend(card_hand_temp)
@@ -218,7 +209,7 @@ def check_game_button(game_button, mouse_x, mouse_y, settings):
         settings['game_active'] = True
 
 def run_game(settings):
-    # Initialize pygame, settings and screen object
+    # Initialize pygame and screen object
     pygame.init() 
     screen = pygame.display.set_mode(
             (settings['screen_width'], settings['screen_height'])) 
@@ -228,8 +219,6 @@ def run_game(settings):
     
     card_hand = card_generator(cards)
     new_board = board(card_hand)
-
-    game_active = False
     game_button = Button(screen, 'Start')
     while True:
         screen.fill(settings['screen_bg_col'])
