@@ -41,10 +41,10 @@ cards = [
         ]
 
 settings = {
-'screen_width': 300,
-'screen_height': 500,
+'screen_width': 360,
+'screen_height': 600,
 'screen_bg_col': (255, 255, 255),
-'maxfps': 30,
+'maxfps': 20,
 'game_active': False
 }
 
@@ -139,7 +139,7 @@ def same_cards(card_hand, board):
 def img_rect(position):
     """Builds a rect where are the same cards"""
     same_rect = pygame.Rect(0, 0, 80, 80)
-    same_rect.center = (50 + 100 * position[1], 50 + 100 * position[0])
+    same_rect.center = (60 + 120 * position[1], 60 + 120 * position[0])
     return same_rect
 
 
@@ -147,7 +147,7 @@ def load_image(number):
     """ Load and resize the surface image bound to a given
     card number """
     image = pygame.image.load('images/img_{0}.png'.format(number))
-    scaled_image = pygame.transform.scale(image, (80, 80))    
+    scaled_image = pygame.transform.scale(image, (100, 100))    
     return scaled_image
 
 
@@ -167,7 +167,7 @@ def draw_board(screen, board):
             if column >= 0:
                 scaled_image = load_image(column)
                 rect = scaled_image.get_rect()
-                rect.center = (50 + 100 * j, 50 + 100 * i)
+                rect.center = (60 + 120 * j, 60 + 120 * i)
                 blitme(screen, scaled_image, rect)
 
 
