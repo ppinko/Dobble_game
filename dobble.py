@@ -45,8 +45,42 @@ settings = {
 'screen_height': 500,
 'screen_bg_col': (255, 255, 255),
 'maxfps': 30,
+'game_active': False
 }
 
+class Button():
+
+    def __init__(self, screen, msg):
+        """Initilize button attributes"""
+        #self.screen_width = settings['screen_width']
+        #self.screen_height = settings['screen_height']
+        self.screen_rect = screen.get_rect()
+        self.screen = screen
+
+        # Set the dimensions and properties of the button
+        self.width, self.height = 100, 50
+        self.button_color = (0, 255, 0)
+        self.text_color = (255, 255, 255)
+        self.font = pygame.font.SysFont(None, 20) # None - default font, 48 - size of the font
+
+        # Build the button's rect object and center it
+        self.rect = pygame.Rect(0, 0, self.width, self.height)
+        self.rect.center = self.screen_rect.center
+
+        # The button message needs to be prepped only once
+        self.prep_msg(msg)
+                
+    def prep_msg(self, msg):
+        """Turn msg into a rendered image and center text on the button"""
+        self.msg_image = self.font.render(msg, True, self.text_color, 
+                self.button_color) # True - antialiasing on
+        self.msg_image_rect = self.msg_image.get_rect()
+        self.msg_image_rect.center = self.rect.center
+
+    def draw_button(self):
+        # Draw blank button and then draw message
+        self.screen.fill(self.button_color, self.rect)
+        self.screen.blit(self.msg_image, self.msg_image_rect)
 
 def card_generator(cards, number=2):
     """ Generates random cards for playing dobble
@@ -81,25 +115,22 @@ def load_image(number):
     """ Load and resize the surface image bound to a given
     card number """
 
-    # Create a path name
-    # path = 'images/img_{0}.png'.format(number)
     image = pygame.image.load('images/img_{0}.png'.format(number))
-    # Scaling image 
-    scaled_image = pygame.transform.scale(image, 
-            (80, 80))
-    
+    scaled_image = pygame.transform.scale(image, (80, 80))    
     return scaled_image
-    #rect = scaled_image.get_rect()
 
-    #self.rect.top = self.screen_rect.top
-    #self.rect.centerx = self.screen_rect.centerx
 
 def blitme(screen, scaled_image, rect):
-    """Draw image on the screen"""
+    """ Draw image on the screen"""
     screen.blit(scaled_image, rect)
 
+
 def draw_board(screen, board):
-    """
+    """ 
+    Draw a board with images
+
+    screen - surface to draw on
+    board - matrix with picture numbers
     """
     for i, row in enumerate(board):
         for j, column in enumerate(row):
@@ -109,7 +140,8 @@ def draw_board(screen, board):
                 rect.center = (50 + 100 * j, 50 + 100 * i)
                 blitme(screen, scaled_image, rect)
 
-def check_events():
+
+def check_events(game_button):
     """Collects and checks events"""    
     for event in pygame.event.get():
         # Enables to close the game while clicking on the 'x'
@@ -120,16 +152,16 @@ def check_events():
         if event.type == pygame.MOUSEBUTTONDOWN:
             # gather position of the click
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_game_button(game_button, mouse_x, mouse_y, bs)
+            check_game_button(game_button, mouse_x, mouse_y, settings)
 
-def check_game_button(game_button, mouse_x, mouse_y, bs):
+def check_game_button(game_button, mouse_x, mouse_y, settings):
     """Check when player cliks start"""
     button_clicked = game_button.rect.collidepoint(mouse_x, mouse_y)
     if button_clicked:
         # Start the game
-        game_active = True
+        settings['game_active'] = True
 
-def run_game():
+def run_game(settings):
     # Initialize pygame, settings and screen object
     pygame.init() 
     screen = pygame.display.set_mode(
@@ -140,10 +172,18 @@ def run_game():
     
     card_hand = card_generator(cards)
     new_board = board(card_hand)
+
+    game_active = False
+    game_button = Button(screen, 'Start')
     while True:
         screen.fill(settings['screen_bg_col'])
-        draw_board(screen, new_board) 
+        if settings['game_active'] == False:
+            game_button.draw_button()
+            check_events(game_button)
+        else:
+            draw_board(screen, new_board)
+            check_events(game_button)
         pygame.display.flip()   
         dont_burn_my_cpu.tick(settings['maxfps'])
 
-run_game()
+run_game(settings)
