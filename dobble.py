@@ -10,7 +10,7 @@ cards = [
         [0, 1, 2, 3, 4, 25],
         [5, 6, 7, 8, 9, 25],
         [10, 11, 12, 13, 14, 25],
-        [15, 16, 16, 17, 19, 25],
+        [15, 16, 17, 18, 19, 25],
         [20, 21, 22, 23, 24, 25],
         [0, 5, 10, 15, 20, 26],
         [1, 6, 11, 16, 21, 26],
@@ -92,8 +92,6 @@ def card_generator(cards, number=2):
     """
     return  random.sample(cards, number)
 
-
-
 def board(card_hand):
     """ Generate matrix with images and their positions 
 
@@ -109,7 +107,45 @@ def board(card_hand):
 
     return board
 
-#print(board(card_generator(cards)))
+
+def same_cards(card_hand, board):
+    """
+    Return which cards in the given set are the same
+
+    Input:
+    board - matrix with numbers
+
+    Output:
+    tuple containing indexes in the board with the same cards
+    """
+    hand_1 = card_hand[0]
+    hand_2 = card_hand[1]
+
+    for i, element in enumerate(hand_1):
+        if element in hand_2:
+            if i <= 2:
+                first_img = (0, i)
+            else:
+                first_img = (1, i-3)
+            
+            index = hand_2.index(element)
+            if index <= 2:
+                second_img = (3, index)
+            else:
+                second_img = (4, index-3)
+
+            return (first_img, second_img)
+
+
+def img_rect(position):
+    """
+    """
+    # Build the button's rect object and center it
+    same_rect = pygame.Rect(0, 0, 80, 80)
+    same_rect.center = (50 + 100 * position[1], 50 + 100 * position[0])
+    print(same_rect.center)
+    return same_rect
+
 
 def load_image(number):
     """ Load and resize the surface image bound to a given
@@ -141,7 +177,7 @@ def draw_board(screen, board):
                 blitme(screen, scaled_image, rect)
 
 
-def check_events(game_button):
+def check_events(game_button, settings, card_hand, new_board, screen):
     """Collects and checks events"""    
     for event in pygame.event.get():
         # Enables to close the game while clicking on the 'x'
@@ -152,7 +188,25 @@ def check_events(game_button):
         if event.type == pygame.MOUSEBUTTONDOWN:
             # gather position of the click
             mouse_x, mouse_y = pygame.mouse.get_pos()
-            check_game_button(game_button, mouse_x, mouse_y, settings)
+            
+            if settings['game_active'] == False:
+                check_game_button(game_button, mouse_x, mouse_y, settings)
+            else:
+                print('Active game')
+                t1 = same_cards(card_hand, new_board)
+                print(t1)
+                found_1 = img_rect(t1[0])
+                found_2 = img_rect(t1[1])
+                found_clicked_1 = found_1.collidepoint(mouse_x, mouse_y)
+                found_clicked_2 = found_2.collidepoint(mouse_x, mouse_y)
+                if found_clicked_1 or found_clicked_2:
+                    print("HIT")
+                    card_hand = card_generator(cards)
+                    board_temp = board(card_hand)
+                    new_board.clear()
+                    new_board.extend(board_temp)
+                    draw_board(screen, new_board)
+
 
 def check_game_button(game_button, mouse_x, mouse_y, settings):
     """Check when player cliks start"""
@@ -179,10 +233,10 @@ def run_game(settings):
         screen.fill(settings['screen_bg_col'])
         if settings['game_active'] == False:
             game_button.draw_button()
-            check_events(game_button)
+            check_events(game_button, settings, card_hand, new_board, screen)
         else:
             draw_board(screen, new_board)
-            check_events(game_button)
+            check_events(game_button, settings, card_hand, new_board, screen)
         pygame.display.flip()   
         dont_burn_my_cpu.tick(settings['maxfps'])
 
